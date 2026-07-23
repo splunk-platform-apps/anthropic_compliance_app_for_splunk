@@ -1,0 +1,198 @@
+<form version="1.1">
+  <label>Claude Enterprise - Governance</label>
+  <description>Directory membership, invitations, project and conversation activity, and agent lifecycle. Requires the Compliance Activity Feed input; directory panels also require the Compliance Directory Sync input.</description>
+  <fieldset submitButton="false">
+    <input type="time" token="time">
+      <label>Time Range</label>
+      <default>
+        <earliest>-24h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="user">
+      <label>User</label>
+      <choice value="*">All users</choice>
+      <search>
+        <query>`claude_index` sourcetype="anthropic:compliance:activity" | `claude_actor_email` | where isnotnull(actor_email) AND actor_email!="null" | stats count by actor_email | sort actor_email</query>
+        <earliest>-90d@d</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>actor_email</fieldForLabel>
+      <fieldForValue>actor_email</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <change>
+        <condition value="*">
+          <set token="user_filter"></set>
+        </condition>
+        <condition>
+          <set token="user_filter">(actor_email="$value$" OR entity_email="$value$" OR target_email="$value$")</set>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <search>
+    <query>`claude_index` (sourcetype="anthropic:compliance:user" OR sourcetype="anthropic:compliance:group") | head 1 | stats count</query>
+    <earliest>-90d@d</earliest>
+    <latest>now</latest>
+    <done>
+      <condition match="$result.count$ == 0">
+        <set token="show_directory_setup">true</set>
+        <unset token="has_directory"></unset>
+      </condition>
+      <condition>
+        <set token="has_directory">true</set>
+        <unset token="show_directory_setup"></unset>
+      </condition>
+    </done>
+  </search>
+  <search>
+    <query>`claude_index` sourcetype="anthropic:compliance:activity" event_type=*agent* | head 1 | stats count</query>
+    <earliest>-90d@d</earliest>
+    <latest>now</latest>
+    <done>
+      <condition match="$result.count$ == 0">
+        <unset token="has_agent"></unset>
+      </condition>
+      <condition>
+        <set token="has_agent">true</set>
+      </condition>
+    </done>
+  </search>
+  <row>
+    <panel depends="$has_directory$">
+      <title>Directory Users</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:compliance:user" | stats dc(id) AS count</query>
+          <earliest>-90d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="underLabel">requires Compliance Directory Sync input</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Active Users (Activity Feed)</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:compliance:activity" $user_filter$ | `claude_actor_email` | where isnotnull(actor_email) AND actor_email!="" AND actor_email!="null" | stats dc(actor_email) AS count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="underLabel">distinct emails in activity feed</option>
+      </single>
+    </panel>
+    <panel depends="$has_directory$">
+      <title>Directory Groups</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:compliance:group" | stats dc(id) AS count</query>
+          <earliest>-90d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="underLabel">requires Compliance Directory Sync input</option>
+      </single>
+    </panel>
+    <panel>
+      <title>User Invites</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:compliance:activity" $user_filter$ event_type=org_user_invite_* | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+      </single>
+    </panel>
+    <panel>
+      <title>Project and Chat Events</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:compliance:activity" (event_type=project_* OR event_type=conversation_* OR event_type=claude_chat_* OR event_type=claude_artifact_* OR event_type=platform_memory_*) $user_filter$ | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Users</title>
+      <table>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:compliance:user" (("$user$"="*") OR email_address="$user$") | sort - _time | dedup id | eval source_of_record="directory" | table email_address, name, role, status, id, source_of_record | append [ search `claude_index` sourcetype="anthropic:compliance:activity" $user_filter$ | eval email_address=coalesce(actor_email, entity_email, target_email) | where isnotnull(email_address) AND email_address!="" AND email_address!="null" | stats count latest(_time) AS last_seen by email_address | eval name=email_address, role="-", status="active", id=email_address, source_of_record="activity" | table email_address, name, role, status, id, source_of_record ] | sort source_of_record, email_address | dedup email_address</query>
+          <earliest>-90d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel depends="$has_directory$">
+      <title>Groups</title>
+      <table>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:compliance:group" | sort - _time | dedup id | table name, id, organization_id</query>
+          <earliest>-90d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel depends="$show_directory_setup$">
+      <title>Directory sync is not collecting yet</title>
+      <html>
+        <p>The user/group roster panels read <code>anthropic:compliance:user</code> and <code>anthropic:compliance:group</code>, produced by the <b>Compliance Directory Sync</b> input. To enable them, go to <b>Inputs &gt; Create New Input &gt; Compliance Directory Sync</b> and select your account (interval 86400 recommended).</p>
+        <p>The input first tries the Compliance directory API; if your key cannot access it, it automatically falls back to the Anthropic <b>Admin API</b> (users, organization, workspaces) using your compliance or analytics key — a key with the <code>read:members</code> scope in either slot works. Errors are logged in <code>index=_internal source=*ta_anthropic_claude_enterprise*</code>.</p>
+        <p>Until directory data arrives, the Users table below is built from activity-feed emails only.</p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Invite Events</title>
+      <table>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:compliance:activity" $user_filter$ event_type=org_user_invite_* | `claude_actor_email` | table _time, event_type, actor_email, actor_user_id, organization_id | sort - _time</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Project and Chat Activity</title>
+      <table>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:compliance:activity" (event_type=project_* OR event_type=conversation_* OR event_type=claude_chat_* OR event_type=claude_artifact_* OR event_type=platform_memory_*) $user_filter$ | `claude_actor_email` | table _time, event_type, actor_email, claude_project_id, claude_chat_id | sort - _time | head 50</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$has_agent$">
+    <panel>
+      <title>Agent Lifecycle Events</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:compliance:activity" event_type=*agent* $user_filter$ | stats count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="underLabel">create / update / delete</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Agent Lifecycle Detail</title>
+      <table>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:compliance:activity" event_type=*agent* $user_filter$ | `claude_actor_email` | table _time, event_type, actor_email, actor_ip_address, claude_project_id, organization_id | sort - _time | head 50</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>
