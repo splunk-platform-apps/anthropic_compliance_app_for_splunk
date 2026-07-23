@@ -1,7 +1,7 @@
 Anthropic Claude Enterprise Add-on for Splunk
 ==============================================
 
-Version: 1.2.1
+Version: 1.2.2
 Author: Manan Grover
 License: Apache-2.0
 
@@ -145,6 +145,13 @@ encrypted and are never written to logs.
 
 RELEASE NOTES
 -------------
+1.2.2
+* Lint-clean Python across bin/ (ruff, trailing whitespace) with the
+  import_declare_test sys.path bootstraps preserved.
+* Corrected internal log source references in documentation and
+  dashboard setup hints.
+* Packaging hygiene release for Splunkbase / splunk-platform-apps CI.
+
 1.2.1
 * Analytics API client authenticates with x-api-key first (matching
   unified scope-based enterprise keys) and retries with bearer auth,

@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "title": "TA-anthropic_claude_enterprise",
-        "version": "1.2.1",
+        "version": "1.2.2",
         "description": "Anthropic Claude Enterprise Add-on",
         "contact": {
             "name": "Anthropic Claude Enterprise Add-on Contributors",
