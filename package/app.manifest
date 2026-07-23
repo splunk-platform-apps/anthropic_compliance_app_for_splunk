@@ -1,0 +1,63 @@
+{
+    "dependencies": null,
+    "incompatibleApps": null,
+    "info": {
+        "author": [
+            {
+                "company": null,
+                "email": "mgrover@splunk.com",
+                "name": "Manan Grover"
+            }
+        ],
+        "classification": {
+            "categories": [
+                "Security, Fraud & Compliance"
+            ],
+            "developmentStatus": "Production/Stable",
+            "intendedAudience": "IT Professionals"
+        },
+        "commonInformationModels": {
+            "dataModels": [
+                "Authentication",
+                "Change"
+            ],
+            "version": "6.0.0"
+        },
+        "description": "Ingest Anthropic Claude Enterprise compliance audit, usage, cost, and spend-limit data into Splunk with security, governance, and analytics dashboards.",
+        "id": {
+            "group": null,
+            "name": "TA-anthropic_claude_enterprise",
+            "version": "1.2.1"
+        },
+        "license": {
+            "name": "Apache-2.0",
+            "text": "./LICENSES/LICENSE.txt",
+            "uri": "https://www.apache.org/licenses/LICENSE-2.0"
+        },
+        "privacyPolicy": {
+            "name": null,
+            "text": null,
+            "uri": null
+        },
+        "releaseDate": null,
+        "releaseNotes": {
+            "name": "README",
+            "text": "README.txt",
+            "uri": ""
+        },
+        "title": "Anthropic Claude Enterprise Add-on"
+    },
+    "inputGroups": null,
+    "platformRequirements": null,
+    "schemaVersion": "2.0.0",
+    "supportedDeployments": [
+        "_standalone",
+        "_distributed",
+        "_search_head_clustering"
+    ],
+    "targetWorkloads": [
+        "_search_heads",
+        "_indexers"
+    ],
+    "tasks": null
+}

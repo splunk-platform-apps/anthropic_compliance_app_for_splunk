@@ -1,0 +1,4 @@
+splunktaucclib>=8.2.0
+splunk-sdk
+solnlib
+urllib3<2
