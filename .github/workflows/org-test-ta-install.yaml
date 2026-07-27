@@ -20,4 +20,4 @@ jobs:
   call-workflow-passing-data:
     uses: splunk-platform-apps/.github/.github/workflows/reusable-test-ta-install.yml@v1
     with:
-      addon_name: anthropic_compliance_app_for_splunk
+      addon_name: TA-anthropic_claude_enterprise
