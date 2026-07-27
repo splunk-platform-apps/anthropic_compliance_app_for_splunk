@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<nav>
+    <view name="inputs"/>
+    <view name="configuration" default="true"/>
+    <view name="dashboard"/>
+    <view name="claude_security_audit"/>
+    <view name="claude_ai_governance"/>
+    <view name="claude_analytics"/>
+    <view name="search"/>
+</nav>

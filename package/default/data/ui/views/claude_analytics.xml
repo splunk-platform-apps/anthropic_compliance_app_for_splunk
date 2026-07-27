@@ -1,0 +1,331 @@
+<form version="1.1">
+  <label>Claude Enterprise - Usage &amp; Spend Analytics</label>
+  <description>Adoption, tokenomics, billing, and spend-limit governance. Requires the Analytics Reports input. Scope the claude_index macro to your Claude index if needed.</description>
+  <fieldset submitButton="false">
+    <input type="time" token="time">
+      <label>Time Range</label>
+      <default>
+        <earliest>-24h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="user">
+      <label>User (per-user panels)</label>
+      <choice value="*">All users</choice>
+      <search>
+        <query>`claude_index` sourcetype="anthropic:analytics:user_usage" OR sourcetype="anthropic:analytics:user_cost" | stats count by email | sort email</query>
+        <earliest>-90d@d</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>email</fieldForLabel>
+      <fieldForValue>email</fieldForValue>
+      <default>*</default>
+    </input>
+  </fieldset>
+  <search>
+    <query>`claude_index` sourcetype="anthropic:analytics:*" | head 1 | stats count</query>
+    <earliest>$time.earliest$</earliest>
+    <latest>$time.latest$</latest>
+    <done>
+      <condition match="$result.count$ == 0">
+        <set token="show_setup">true</set>
+      </condition>
+      <condition>
+        <unset token="show_setup"></unset>
+      </condition>
+    </done>
+  </search>
+  <row depends="$show_setup$">
+    <panel>
+      <title>No analytics data in the selected time range</title>
+      <html>
+        <p>These panels read the <code>anthropic:analytics:*</code> sourcetypes, which come from the <b>Analytics Reports</b> input. Anthropic finalizes analytics with a <b>~3 day lag</b>, so short windows such as Last 24 hours are often empty by design - try Last 7 or 30 days first. If widening the range does not help:</p>
+        <ol>
+          <li>Make sure your API key includes the <code>read:analytics</code> scope (and <code>read:spend_limits</code> for the spend-limit panels). If one key carries all scopes, entering it as the Compliance key on <b>Configuration &gt; Account</b> is enough - the Analytics key field can stay blank and the compliance key is reused. Otherwise add a dedicated key with those scopes in the <b>Analytics API key</b> field.</li>
+          <li>On <b>Inputs</b>, create an <b>Analytics Reports</b> input for that account (interval 86400 recommended).</li>
+          <li>Anthropic finalizes analytics with a ~3 day lag, so the newest data point will be about 3 days old. Widen the time range if needed.</li>
+          <li>If you ingest into a dedicated index, update the <code>claude_index</code> macro (Settings &gt; Advanced search &gt; Search macros).</li>
+        </ol>
+        <p>Errors from the input are logged in <code>index=_internal source=*anthropic_claude*</code>. This message disappears automatically once analytics events are indexed.</p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Weekly Active Users</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:summary" | sort - _time | head 1 | fields weekly_active_user_count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Daily Active Users</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:summary" | sort - _time | head 1 | fields daily_active_user_count</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>DAU/WAU Stickiness (%)</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:summary" | sort - _time | head 1 | eval stickiness=if(weekly_active_user_count&gt;0, round(100*daily_active_user_count/weekly_active_user_count,1), null()) | fields stickiness</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+      </single>
+    </panel>
+    <panel>
+      <title>Period Spend (USD)</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:cost" | eval cost_usd=coalesce(tonumber(amount)/100, total_cost_usd) | stats sum(cost_usd) AS total | eval total=round(total, 2)</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="unit">$</option>
+        <option name="unitPosition">before</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Total Tokens</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:usage" | eval tokens=coalesce(output_tokens,0)+coalesce(uncached_input_tokens,0)+coalesce(cache_read_input_tokens,0)+coalesce('cache_creation.ephemeral_1h_input_tokens',0)+coalesce('cache_creation.ephemeral_5m_input_tokens',0)+coalesce(cache_creation_input_tokens,0) | stats sum(tokens) AS total_tokens</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Active Members Over Time</title>
+      <chart>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:summary" | timechart max(daily_active_user_count) AS Daily max(weekly_active_user_count) AS Weekly</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Adoption Rate (%)</title>
+      <chart>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:summary" | timechart max(daily_adoption_rate) AS Daily max(monthly_adoption_rate) AS Monthly</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Token Mix Over Time (Tokenomics)</title>
+      <chart>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:usage" | eval cache_creation_tokens=coalesce('cache_creation.ephemeral_1h_input_tokens',0)+coalesce('cache_creation.ephemeral_5m_input_tokens',0)+coalesce(cache_creation_input_tokens,0) | timechart sum(output_tokens) AS "Output" sum(uncached_input_tokens) AS "Uncached Input" sum(cache_read_input_tokens) AS "Cache Read" sum(cache_creation_tokens) AS "Cache Creation"</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Prompt Cache Hit Rate (%)</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:usage" | stats sum(cache_read_input_tokens) AS cached sum(uncached_input_tokens) AS uncached | eval hit_rate=if((coalesce(cached,0)+coalesce(uncached,0))&gt;0, round(100*coalesce(cached,0)/(coalesce(cached,0)+coalesce(uncached,0)),1), null()) | fields hit_rate</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="underLabel">cache reads vs. uncached input tokens</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Blended Cost per 1M Tokens (USD)</title>
+      <single>
+        <search>
+          <query>`claude_index` (sourcetype="anthropic:analytics:cost" OR sourcetype="anthropic:analytics:usage") | eval cost_usd=if(sourcetype="anthropic:analytics:cost", coalesce(tonumber(amount)/100, total_cost_usd), null()) | eval tokens=if(sourcetype="anthropic:analytics:usage", coalesce(output_tokens,0)+coalesce(uncached_input_tokens,0)+coalesce(cache_read_input_tokens,0), null()) | stats sum(cost_usd) AS cost sum(tokens) AS tokens | eval cost_per_mtok=if(tokens&gt;0, round(1000000*cost/tokens, 2), null()) | fields cost_per_mtok</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="unit">$</option>
+        <option name="unitPosition">before</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Spend by Product (USD)</title>
+      <chart>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:cost" | eval cost_usd=coalesce(tonumber(amount)/100, total_cost_usd) | eval product_label=case(product="claude_code", "Claude Code", product="cowork", "Cowork", product="office_agent", "Office Agent", product="chat", "Claude.ai", isnotnull(product), product, 1=1, "Other") | timechart sum(cost_usd) AS spend by product_label</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Token Usage by Product</title>
+      <chart>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:usage" | eval product_label=case(product="claude_code", "Claude Code", product="cowork", "Cowork", product="office_agent", "Office Agent", product="chat", "Claude.ai", isnotnull(product), product, 1=1, "Other") | eval tokens=coalesce(output_tokens,0)+coalesce(uncached_input_tokens,0)+coalesce(cache_read_input_tokens,0) | stats sum(tokens) AS tokens by product_label</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Spend by Model (USD)</title>
+      <chart>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:cost" | eval cost_usd=coalesce(tonumber(amount)/100, total_cost_usd) | timechart sum(cost_usd) AS spend by model</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">line</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Cost per 1M Tokens by Model (USD)</title>
+      <chart>
+        <search>
+          <query>`claude_index` (sourcetype="anthropic:analytics:cost" OR sourcetype="anthropic:analytics:usage") model=* | eval cost_usd=if(sourcetype="anthropic:analytics:cost", coalesce(tonumber(amount)/100, total_cost_usd), null()) | eval tokens=if(sourcetype="anthropic:analytics:usage", coalesce(output_tokens,0)+coalesce(uncached_input_tokens,0)+coalesce(cache_read_input_tokens,0), null()) | stats sum(cost_usd) AS cost sum(tokens) AS tokens by model | where tokens&gt;0 AND cost&gt;0 | eval cost_per_mtok=round(1000000*cost/tokens, 2) | sort - cost_per_mtok | fields model, cost_per_mtok</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top 20 Users by Cost (USD)</title>
+      <table>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:user_cost" (("$user$"="*") OR email="$user$") | eval cost_usd=coalesce(tonumber(amount)/100, total_cost_usd) | stats sum(cost_usd) AS cost_usd by email | eval cost_usd=round(cost_usd, 2) | sort - cost_usd | head 20 | rename email AS user, cost_usd AS "cost (USD)"</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Top 20 Users by Tokens</title>
+      <table>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:user_usage" (("$user$"="*") OR email="$user$") | stats sum(output_tokens) AS output_tokens sum(uncached_input_tokens) AS input_tokens by email | eval total_tokens=coalesce(output_tokens,0)+coalesce(input_tokens,0) | sort - total_tokens | head 20 | table email, output_tokens, input_tokens, total_tokens</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top 5 Users' Share of Spend (%)</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:user_cost" | eval cost_usd=coalesce(tonumber(amount)/100, total_cost_usd) | stats sum(cost_usd) AS user_spend by email | eventstats sum(user_spend) AS org_spend | sort - user_spend | head 5 | stats sum(user_spend) AS top5_spend max(org_spend) AS org_spend | eval concentration_pct=if(org_spend&gt;0, round(100*top5_spend/org_spend,1), null()) | fields concentration_pct</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="underLabel">spend concentration</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Org Period-to-Date Spend (USD)</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:spend_limit" | eval period_spend_usd=coalesce(tonumber(period_to_date_spend)/100, period_spend_usd) | eval spend_limit_usd=coalesce(tonumber(amount)/100, spend_limit_usd) | eval utilization_pct=case(spend_limit_usd&gt;0, round(100*period_spend_usd/spend_limit_usd,1), isnotnull(utilization_pct), utilization_pct) | stats latest(period_spend_usd) AS period_spend_usd by email | stats sum(period_spend_usd) AS total | eval total=round(total, 2)</query>
+          <earliest>-90d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="unit">$</option>
+        <option name="unitPosition">before</option>
+        <option name="useThousandSeparators">1</option>
+        <option name="underLabel">latest spend-limit snapshot</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Users at 80%+ of Spend Limit</title>
+      <single>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:spend_limit" | eval period_spend_usd=coalesce(tonumber(period_to_date_spend)/100, period_spend_usd) | eval spend_limit_usd=coalesce(tonumber(amount)/100, spend_limit_usd) | eval utilization_pct=case(spend_limit_usd&gt;0, round(100*period_spend_usd/spend_limit_usd,1), isnotnull(utilization_pct), utilization_pct) | stats latest(utilization_pct) AS utilization_pct by email | where utilization_pct&gt;=80 | stats dc(email) AS users</query>
+          <earliest>-90d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="underLabel">latest spend-limit snapshot</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Spend vs. Limit by User (Latest Snapshot)</title>
+      <table>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:spend_limit" (("$user$"="*") OR email="$user$") | eval period_spend_usd=coalesce(tonumber(period_to_date_spend)/100, period_spend_usd) | eval spend_limit_usd=coalesce(tonumber(amount)/100, spend_limit_usd) | eval utilization_pct=case(spend_limit_usd&gt;0, round(100*period_spend_usd/spend_limit_usd,1), isnotnull(utilization_pct), utilization_pct) | stats latest(user_name) AS name latest(period_spend_usd) AS period_spend_usd latest(spend_limit_usd) AS spend_limit_usd latest(utilization_pct) AS utilization_pct latest(limit_source_type) AS limit_source by email | sort - period_spend_usd | rename period_spend_usd AS "spend (USD)", spend_limit_usd AS "limit (USD)", utilization_pct AS "utilization (%)"</query>
+          <earliest>-90d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Pending Spend-Limit Increase Requests</title>
+      <table>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:spend_limit_request" status="pending" (("$user$"="*") OR email="$user$") | eval request_spend_limit_usd=coalesce(tonumber(request_spend_limit_cents)/100, request_spend_limit_usd) | eval request_period_spend_usd=coalesce(tonumber(request_period_spend_cents)/100, request_period_spend_usd) | stats latest(_time) AS _time latest(request_spend_limit_usd) AS requested_limit_usd latest(request_period_spend_usd) AS period_spend_usd by email | sort - _time</query>
+          <earliest>-90d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Claude Code Tool Acceptance by User</title>
+      <table>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:user_activity" (("$user$"="*") OR email="$user$") | stats sum('claude_code_metrics.tool_accepted_count') AS accepted sum('claude_code_metrics.tool_rejected_count') AS rejected by email | eval reject_rate_pct=if((coalesce(accepted,0)+coalesce(rejected,0))&gt;0, round(100*coalesce(rejected,0)/(coalesce(accepted,0)+coalesce(rejected,0)),1), 0) | sort - accepted | head 20</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Connector Usage by User</title>
+      <table>
+        <search>
+          <query>`claude_index` sourcetype="anthropic:analytics:user_activity" (("$user$"="*") OR email="$user$") | stats sum('chat_metrics.connectors_used_count') AS chat sum('cowork_metrics.connectors_used_count') AS cowork by email | eval total=coalesce(chat,0)+coalesce(cowork,0) | where total&gt;0 | sort - total | head 20</query>
+          <earliest>$time.earliest$</earliest>
+          <latest>$time.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>
