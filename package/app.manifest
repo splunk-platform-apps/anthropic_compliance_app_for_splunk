@@ -4,7 +4,7 @@
     "info": {
         "author": [
             {
-                "company": null,
+                "company": "Splunk Inc.",
                 "email": "mgrover@splunk.com",
                 "name": "Manan Grover"
             }
@@ -32,7 +32,7 @@
         "license": {
             "name": "Apache-2.0",
             "text": "./LICENSES/LICENSE.txt",
-            "uri": "https://www.apache.org/licenses/LICENSE-2.0"
+            "uri": "https://github.com/splunk-platform-apps/anthropic_compliance_app_for_splunk/blob/main/LICENSE"
         },
         "privacyPolicy": {
             "name": null,
@@ -41,9 +41,9 @@
         },
         "releaseDate": null,
         "releaseNotes": {
-            "name": "README",
-            "text": "README.txt",
-            "uri": ""
+            "name": "CHANGELOG.md",
+            "text": null,
+            "uri": "https://github.com/splunk-platform-apps/anthropic_compliance_app_for_splunk/blob/main/CHANGELOG.md"
         },
         "title": "Anthropic Claude Enterprise Add-on"
     },
