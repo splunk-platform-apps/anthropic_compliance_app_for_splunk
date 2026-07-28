@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 
 from solnlib.modular_input import checkpointer
 
-from ta_anthropic_claude_enterprise import ADDON_NAME, CHECKPOINT_COLLECTION
+from ta_anthropic_claude_enterprise import ADDON_NAME, ADDON_VERSION, CHECKPOINT_COLLECTION
 
 
 class CheckpointStore:
