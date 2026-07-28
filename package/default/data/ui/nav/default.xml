@@ -7,4 +7,6 @@
     <view name="claude_ai_governance"/>
     <view name="claude_analytics"/>
     <view name="search"/>
+    <a href="https://splunk-platform-apps.github.io/anthropic_compliance_app_for_splunk/docs#getting-started" target="_blank">Documentation</a>
+    <a href="https://github.com/splunk-platform-apps/anthropic_compliance_app_for_splunk/issues" target="_blank">Report an issue</a>
 </nav>
