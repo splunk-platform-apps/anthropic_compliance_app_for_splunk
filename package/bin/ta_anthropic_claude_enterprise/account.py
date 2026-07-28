@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 
 from solnlib import conf_manager
 
-from ta_anthropic_claude_enterprise import ADDON_NAME
+from ta_anthropic_claude_enterprise import ADDON_NAME,ADDON_VERSION
 
 
 def get_account_config(session_key: str, account_name: str) -> Dict[str, Any]:
