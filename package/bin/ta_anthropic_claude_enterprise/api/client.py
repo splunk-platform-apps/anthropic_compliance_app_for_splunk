@@ -11,7 +11,7 @@ import urllib.parse
 import urllib.request
 from typing import Any, Dict, Iterator, List, Optional, Tuple
 
-from ta_anthropic_claude_enterprise import (
+from ta_anthropic_claude_enterprise.constants import (
     ADDON_NAME,
     ADDON_VERSION,
     ANTHROPIC_VERSION,
