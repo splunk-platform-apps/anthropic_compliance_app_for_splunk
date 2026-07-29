@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional
 from solnlib import conf_manager, log
 from splunklib import modularinput as smi
 
-from ta_anthropic_claude_enterprise import ADDON_NAME
+from ta_anthropic_claude_enterprise.constants import ADDON_NAME
 
 
 def logger_for_input(input_name: str) -> logging.Logger:
