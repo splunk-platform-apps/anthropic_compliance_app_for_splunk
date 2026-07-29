@@ -28,8 +28,9 @@ Quick start:
 
 1. Create an enterprise API key in the [Anthropic Console](https://console.anthropic.com/) with the read scopes you need (`read:compliance_activities`, `read:analytics`, `read:spend_limits`, `read:members`, ...).
 2. Install the add-on, add the key under **Configuration → Account**.
-3. Create the **Compliance Activity Feed**, **Compliance Directory Sync**, and **Analytics Reports** inputs, pointing at your Claude index.
-4. Scope the `claude_index` search macro to that index. Done — dashboards populate as data arrives (analytics has a ~3-day finalization lag).
+3. Create an index for your claude events 
+4. Create the **Compliance Activity Feed**, **Compliance Directory Sync**, and **Analytics Reports** inputs, pointing at your Claude index.
+5. Update the `claude_index` search macro to your claude index(Settings -> Advanced Macros -> Search macros -> update 'claude_index; macro with your index  . Done — dashboards populate as data arrives (analytics has a ~3-day finalization lag).
 
 ## Useful Links
 
