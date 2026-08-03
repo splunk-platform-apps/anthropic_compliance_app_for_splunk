@@ -1,4 +1,5 @@
 """Tests for Compliance API query parameters."""
+# ruff: noqa: E402
 
 import json
 import sys
@@ -17,7 +18,9 @@ class TestComplianceActivitiesParams(unittest.TestCase):
     @patch("urllib.request.OpenerDirector.open")
     def test_backfill_uses_created_at_gte_not_created_after(self, mock_open):
         response = MagicMock()
-        response.read.return_value = json.dumps({"data": [], "has_more": False}).encode("utf-8")
+        response.read.return_value = json.dumps({"data": [], "has_more": False}).encode(
+            "utf-8"
+        )
         response.__enter__.return_value = response
         mock_open.return_value = response
 
@@ -34,7 +37,9 @@ class TestComplianceActivitiesParams(unittest.TestCase):
     @patch("urllib.request.OpenerDirector.open")
     def test_incremental_uses_after_id(self, mock_open):
         response = MagicMock()
-        response.read.return_value = json.dumps({"data": [], "has_more": False}).encode("utf-8")
+        response.read.return_value = json.dumps({"data": [], "has_more": False}).encode(
+            "utf-8"
+        )
         response.__enter__.return_value = response
         mock_open.return_value = response
 

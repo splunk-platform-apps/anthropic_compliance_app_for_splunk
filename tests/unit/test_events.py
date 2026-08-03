@@ -1,4 +1,5 @@
 """Tests for event normalization."""
+# ruff: noqa: E402
 
 import sys
 import unittest

@@ -7,7 +7,12 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 BIN_DIR = Path(__file__).resolve().parents[2] / "package" / "bin"
-LIB_DIR = Path(__file__).resolve().parents[2] / "output" / "TA-anthropic_claude_enterprise" / "lib"
+LIB_DIR = (
+    Path(__file__).resolve().parents[2]
+    / "output"
+    / "TA-anthropic_claude_enterprise"
+    / "lib"
+)
 if LIB_DIR.is_dir():
     sys.path.insert(0, str(LIB_DIR))
 sys.path.insert(0, str(BIN_DIR))
@@ -75,7 +80,9 @@ class TestMockApiPipeline(unittest.TestCase):
         client = AnthropicClient(compliance_api_key=MOCK_COMPLIANCE_KEY)
         compliance = ComplianceAPI(client)
 
-        events = [normalize_activity(a) for a in compliance.list_activities(max_items=10)]
+        events = [
+            normalize_activity(a) for a in compliance.list_activities(max_items=10)
+        ]
         self.assertEqual(len(events), 2)
         self.assertEqual(events[0]["event_type"], "user_signed_in_sso")
         self.assertTrue(events[0]["is_authentication_event"])
@@ -83,7 +90,7 @@ class TestMockApiPipeline(unittest.TestCase):
 
     @patch("urllib.request.OpenerDirector.open")
     def test_analytics_summary_pipeline(self, mock_open):
-        from datetime import date, timedelta
+        from datetime import timedelta
 
         from ta_anthropic_claude_enterprise.api.analytics import AnalyticsAPI
         from ta_anthropic_claude_enterprise.api.client import AnthropicClient

@@ -1,4 +1,5 @@
 """Tests for analytics date window helpers."""
+# ruff: noqa: E402
 
 import sys
 import unittest
@@ -25,7 +26,9 @@ class TestResolveAnalyticsStartDate(unittest.TestCase):
 
     def test_invalid_checkpoint_falls_back_to_backfill(self):
         end = date(2026, 4, 10)
-        start = resolve_analytics_start_date({"last_finalized_date": "bad-date"}, end, 7)
+        start = resolve_analytics_start_date(
+            {"last_finalized_date": "bad-date"}, end, 7
+        )
         self.assertEqual(start, end - timedelta(days=7))
 
 

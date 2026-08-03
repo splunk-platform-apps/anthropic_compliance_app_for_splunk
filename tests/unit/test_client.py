@@ -1,4 +1,5 @@
 """Tests for Anthropic API client."""
+# ruff: noqa: E402
 
 import json
 import sys
