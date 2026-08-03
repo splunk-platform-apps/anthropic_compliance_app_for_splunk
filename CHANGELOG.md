@@ -1,3 +1,14 @@
+## [1.3.0] - 2026-07-29
+
+### Added
+- `claude_latest_load` search macro to deduplicate overlapping analytics report
+  loads within the same collection window, preventing inflated token and cost
+  totals on dashboards when multiple report snapshots exist for the same day.
+
+### Changed
+- Usage & Spend Analytics dashboard queries now apply `claude_latest_load`
+  before aggregating cost and usage metrics.
+
 ## [1.2.4] - 2026-07-24
 
 ### Fixed
