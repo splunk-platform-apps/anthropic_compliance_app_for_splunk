@@ -5,11 +5,10 @@ from __future__ import annotations
 import json
 import logging
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 from solnlib import conf_manager, log
 from splunklib import modularinput as smi
-
 from ta_anthropic_claude_enterprise.constants import ADDON_NAME
 
 
@@ -27,7 +26,7 @@ def configure_logger(logger: logging.Logger, session_key: str) -> None:
     logger.setLevel(log_level)
 
 
-def parse_event_time(value: Optional[str]) -> Optional[float]:
+def parse_event_time(value: str | None) -> float | None:
     if not value:
         return None
     normalized = value.replace("Z", "+00:00")
@@ -39,11 +38,11 @@ def parse_event_time(value: Optional[str]) -> Optional[float]:
 
 def write_json_event(
     event_writer: smi.EventWriter,
-    payload: Dict[str, Any],
-    index: Optional[str],
+    payload: dict[str, Any],
+    index: str | None,
     sourcetype: str,
     source: str,
-    event_time: Optional[str] = None,
+    event_time: str | None = None,
 ) -> None:
     # Drop null values so Splunk's JSON extraction never yields literal
     # "null" strings for fields like actor_email.

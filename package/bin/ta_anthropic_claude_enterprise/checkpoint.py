@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from solnlib.modular_input import checkpointer
-
 from ta_anthropic_claude_enterprise.constants import ADDON_NAME, CHECKPOINT_COLLECTION
 
 
@@ -19,7 +18,7 @@ class CheckpointStore:
             ADDON_NAME,
         )
 
-    def get(self, input_key: str) -> Dict[str, Any]:
+    def get(self, input_key: str) -> dict[str, Any]:
         state = self._checkpointer.get(input_key)
         if not state:
             return {}
@@ -27,15 +26,13 @@ class CheckpointStore:
             return state
         return {}
 
-    def set(self, input_key: str, state: Dict[str, Any]) -> None:
+    def set(self, input_key: str, state: dict[str, Any]) -> None:
         self._checkpointer.update(input_key, state)
 
-    def get_value(
-        self, input_key: str, field: str, default: Optional[Any] = None
-    ) -> Any:
+    def get_value(self, input_key: str, field: str, default: Any | None = None) -> Any:
         return self.get(input_key).get(field, default)
 
-    def update(self, input_key: str, **fields: Any) -> Dict[str, Any]:
+    def update(self, input_key: str, **fields: Any) -> dict[str, Any]:
         state = self.get(input_key)
         state.update(fields)
         self.set(input_key, state)

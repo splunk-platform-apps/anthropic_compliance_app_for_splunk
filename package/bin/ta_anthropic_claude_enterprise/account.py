@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from solnlib import conf_manager
-
 from ta_anthropic_claude_enterprise.constants import ADDON_NAME
 
 
-def get_account_config(session_key: str, account_name: str) -> Dict[str, Any]:
+def get_account_config(session_key: str, account_name: str) -> dict[str, Any]:
     """Load account stanza including encrypted API keys."""
     cfm = conf_manager.ConfManager(
         session_key,
@@ -27,7 +26,7 @@ def get_account_config(session_key: str, account_name: str) -> Dict[str, Any]:
     }
 
 
-def resolve_analytics_api_key(account: Dict[str, Any]) -> Optional[str]:
+def resolve_analytics_api_key(account: dict[str, Any]) -> str | None:
     """Use dedicated analytics key, or fall back to compliance key when scopes overlap."""
     return account.get("analytics_api_key") or account.get("compliance_api_key")
 

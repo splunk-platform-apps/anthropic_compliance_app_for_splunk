@@ -9,7 +9,8 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Any, Dict, Iterator, List, Optional, Tuple
+from collections.abc import Iterator
+from typing import Any
 
 from ta_anthropic_claude_enterprise.constants import (
     ADDON_NAME,
@@ -29,7 +30,7 @@ class AnthropicAPIError(Exception):
     """Raised when the Anthropic API returns an error response."""
 
     def __init__(
-        self, status_code: int, message: str, response_body: Optional[str] = None
+        self, status_code: int, message: str, response_body: str | None = None
     ):
         super().__init__(message)
         self.status_code = status_code
@@ -41,9 +42,9 @@ class AnthropicClient:
 
     def __init__(
         self,
-        compliance_api_key: Optional[str] = None,
-        analytics_api_key: Optional[str] = None,
-        proxy_url: Optional[str] = None,
+        compliance_api_key: str | None = None,
+        analytics_api_key: str | None = None,
+        proxy_url: str | None = None,
         timeout: int = DEFAULT_TIMEOUT,
     ):
         self.compliance_api_key = compliance_api_key
@@ -69,10 +70,10 @@ class AnthropicClient:
         self,
         method: str,
         path: str,
-        params: Optional[Dict[str, Any]] = None,
-        api_key: Optional[str] = None,
+        params: dict[str, Any] | None = None,
+        api_key: str | None = None,
         use_bearer: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         if not api_key:
             raise AnthropicAPIError(401, "API key is required for this request")
 
@@ -95,7 +96,7 @@ class AnthropicClient:
 
         request = urllib.request.Request(url, method=method, headers=headers)
         opener = self._build_opener()
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
 
         for attempt in range(MAX_RETRIES):
             try:
@@ -134,7 +135,7 @@ class AnthropicClient:
         raise AnthropicAPIError(0, f"Request failed after retries: {last_error}")
 
     @staticmethod
-    def _parse_error_message(body: str) -> Optional[str]:
+    def _parse_error_message(body: str) -> str | None:
         try:
             payload = json.loads(body)
         except json.JSONDecodeError:
@@ -145,7 +146,7 @@ class AnthropicClient:
                 return error.get("message") or error.get("type")
         return None
 
-    def validate_compliance_key(self) -> Tuple[bool, str]:
+    def validate_compliance_key(self) -> tuple[bool, str]:
         """Probe compliance activities endpoint with limit=1."""
         if not self.compliance_api_key:
             return False, "Compliance API key is not configured"
@@ -160,14 +161,14 @@ class AnthropicClient:
                 )
             return False, str(exc)
 
-    def validate_analytics_key(self) -> Tuple[bool, str]:
+    def validate_analytics_key(self) -> tuple[bool, str]:
         """Probe analytics summaries with a minimal date range."""
         if not self.analytics_api_key:
             return False, "Analytics API key is not configured"
         try:
-            from datetime import date, timedelta
+            from datetime import datetime, timedelta, timezone
 
-            end = date.today() - timedelta(days=3)
+            end = datetime.now(timezone.utc).date() - timedelta(days=3)
             start = end - timedelta(days=1)
             self.analytics_get(
                 "/v1/organizations/analytics/summaries",
@@ -180,15 +181,15 @@ class AnthropicClient:
             return False, str(exc)
 
     def compliance_get(
-        self, path: str, params: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, path: str, params: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         return self._request(
             "GET", path, params=params, api_key=self.compliance_api_key
         )
 
     def analytics_get(
-        self, path: str, params: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, path: str, params: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Analytics API GET.
 
         Unified enterprise API keys (scope-based, e.g. read:analytics)
@@ -231,10 +232,10 @@ class AnthropicClient:
     def paginate_compliance(
         self,
         path: str,
-        params: Optional[Dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
         data_key: str = "data",
-        max_items: Optional[int] = None,
-    ) -> Iterator[Dict[str, Any]]:
+        max_items: int | None = None,
+    ) -> Iterator[dict[str, Any]]:
         """Cursor pagination using after_id / has_more."""
         query = dict(params or {})
         query.setdefault("limit", min(MAX_PAGE_SIZE, max_items or MAX_PAGE_SIZE))
@@ -265,17 +266,16 @@ class AnthropicClient:
     def paginate_analytics(
         self,
         path: str,
-        params: Optional[Dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
         data_key: str = "data",
-    ) -> Iterator[Dict[str, Any]]:
+    ) -> Iterator[dict[str, Any]]:
         """Page through analytics endpoints using next_page cursor."""
         query = dict(params or {})
         while True:
             response = self.analytics_get(path, query)
             items = response.get(data_key, [])
             if isinstance(items, list):
-                for item in items:
-                    yield item
+                yield from items
 
             next_page = response.get("next_page")
             if not next_page:
@@ -283,20 +283,20 @@ class AnthropicClient:
             query["page"] = next_page
 
     def admin_get(
-        self, path: str, params: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, path: str, params: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Admin API GET (x-api-key header).
 
         Tries the compliance key first, then the analytics key: either slot
         may hold the org's admin key depending on how the account was set up.
         """
-        keys: List[str] = []
+        keys: list[str] = []
         for key in (self.compliance_api_key, self.analytics_api_key):
             if key and key not in keys:
                 keys.append(key)
         if not keys:
             raise AnthropicAPIError(401, "Admin API key is required for this request")
-        last_error: Optional[AnthropicAPIError] = None
+        last_error: AnthropicAPIError | None = None
         for key in keys:
             try:
                 return self._request("GET", path, params=params, api_key=key)
@@ -310,17 +310,16 @@ class AnthropicClient:
     def paginate_admin(
         self,
         path: str,
-        params: Optional[Dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
         data_key: str = "data",
-    ) -> Iterator[Dict[str, Any]]:
+    ) -> Iterator[dict[str, Any]]:
         """Page through Admin API endpoints using next_page cursor."""
         query = dict(params or {})
         while True:
             response = self.admin_get(path, query)
             items = response.get(data_key, [])
             if isinstance(items, list):
-                for item in items:
-                    yield item
+                yield from items
 
             next_page = response.get("next_page")
             if not next_page:
