@@ -16,6 +16,8 @@ directory, content export), **Enterprise Analytics API** (usage, cost,
 per-user reports), and **Admin API** (spend limits, directory fallback)
 using scoped enterprise API keys stored encrypted in Splunk.
 
+:bookmark: Discover more on monitoring and governing enterprise AI platform in our [new blog post](https://lantern.splunk.com/Security_Use_Cases/Compliance/Monitoring_and_governing_enterprise_AI_platforms#) on Splunk Lantern.
+
 ## Getting Started
 
 To install and run this app, download the latest compiled application directly from the releases page.
