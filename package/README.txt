@@ -1,7 +1,7 @@
 Anthropic Claude Enterprise Add-on for Splunk
 ==============================================
 
-Version: 1.2.4
+Version: 1.3.0
 Author: Manan Grover
 License: Apache-2.0
 
