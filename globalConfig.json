@@ -641,9 +641,6 @@
         "displayName": "Anthropic Claude Enterprise Add-on",
         "schemaVersion": "0.0.10",
         "navColor": "#CC785C",
-        "supportedPythonVersion": [
-            "3.13"
-        ],
         "checkForUpdates": false,
         "supportedThemes": [
             "light",

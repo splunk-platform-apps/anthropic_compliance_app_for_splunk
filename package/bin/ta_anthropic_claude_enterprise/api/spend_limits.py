@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterator, List, Optional
+from collections.abc import Iterator
+from typing import Any
 
 from ta_anthropic_claude_enterprise.api.client import AnthropicClient
 
@@ -15,11 +16,11 @@ class SpendLimitsAPI:
 
     def list_effective_spend_limits(
         self,
-        user_ids: Optional[List[str]] = None,
-        period: Optional[List[str]] = None,
+        user_ids: list[str] | None = None,
+        period: list[str] | None = None,
         limit: int = 100,
-    ) -> Iterator[Dict[str, Any]]:
-        params: Dict[str, Any] = {"limit": limit}
+    ) -> Iterator[dict[str, Any]]:
+        params: dict[str, Any] = {"limit": limit}
         if user_ids:
             params["user_ids[]"] = user_ids
         if period:
@@ -31,11 +32,11 @@ class SpendLimitsAPI:
 
     def list_spend_limit_increase_requests(
         self,
-        status: Optional[List[str]] = None,
-        actor_ids: Optional[List[str]] = None,
+        status: list[str] | None = None,
+        actor_ids: list[str] | None = None,
         limit: int = 100,
-    ) -> Iterator[Dict[str, Any]]:
-        params: Dict[str, Any] = {"limit": limit}
+    ) -> Iterator[dict[str, Any]]:
+        params: dict[str, Any] = {"limit": limit}
         if status:
             params["status[]"] = status
         if actor_ids:

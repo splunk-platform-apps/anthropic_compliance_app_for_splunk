@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict
+from typing import Any
 
 from solnlib import log
 from splunklib import modularinput as smi
-
 from ta_anthropic_claude_enterprise.account import build_client_from_account
 from ta_anthropic_claude_enterprise.api.compliance import ComplianceAPI
 from ta_anthropic_claude_enterprise.checkpoint import CheckpointStore
@@ -50,7 +49,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter) ->
                 account=input_item.get("account"),
             )
             log.modular_input_end(logger, normalized_input_name)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             log.log_exception(
                 logger,
                 exc,
@@ -63,7 +62,7 @@ def _collect_activities(
     logger,
     session_key: str,
     input_key: str,
-    input_item: Dict[str, Any],
+    input_item: dict[str, Any],
     event_writer: smi.EventWriter,
 ) -> int:
     account_name = input_item.get("account")

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from ta_anthropic_claude_enterprise.constants import (
     AUTH_EVENT_TYPES,
@@ -10,7 +10,7 @@ from ta_anthropic_claude_enterprise.constants import (
 )
 
 
-def normalize_activity(activity: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_activity(activity: dict[str, Any]) -> dict[str, Any]:
     """Flatten Compliance Activity feed records for Splunk search."""
     actor = activity.get("actor") or {}
     if not isinstance(actor, dict):
@@ -60,7 +60,7 @@ def normalize_activity(activity: Dict[str, Any]) -> Dict[str, Any]:
     return normalized
 
 
-def _extract_email(record: Dict[str, Any]) -> Optional[str]:
+def _extract_email(record: dict[str, Any]) -> str | None:
     """Return the first non-empty email-like field from a nested API object."""
     for key in ("email_address", "email", "invited_email", "invitee_email"):
         value = record.get(key)
@@ -70,10 +70,10 @@ def _extract_email(record: Dict[str, Any]) -> Optional[str]:
 
 
 def wrap_directory_record(
-    record: Dict[str, Any],
+    record: dict[str, Any],
     record_type: str,
-    extra: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    extra: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """Wrap directory sync records with common metadata."""
     payload = {
         "record_type": record_type,
@@ -88,10 +88,10 @@ def wrap_directory_record(
 
 
 def wrap_analytics_record(
-    record: Dict[str, Any],
+    record: dict[str, Any],
     report_type: str,
-    extra: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    extra: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """Wrap analytics API payloads with report metadata."""
     payload = {
         "report_type": report_type,
@@ -108,10 +108,10 @@ def wrap_analytics_record(
 
 
 def wrap_spend_limit_record(
-    record: Dict[str, Any],
+    record: dict[str, Any],
     record_type: str,
-    extra: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    extra: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """Normalize spend limit API rows."""
     payload = {
         "record_type": record_type,
@@ -145,7 +145,7 @@ def wrap_spend_limit_record(
     return payload
 
 
-def _flatten_actor_fields(record: Dict[str, Any]) -> None:
+def _flatten_actor_fields(record: dict[str, Any]) -> None:
     actor = record.get("actor")
     if not isinstance(actor, dict):
         return
@@ -162,14 +162,14 @@ def _flatten_actor_fields(record: Dict[str, Any]) -> None:
         record["user_name"] = name
 
 
-def _normalize_cost_fields(record: Dict[str, Any], report_type: str) -> None:
+def _normalize_cost_fields(record: dict[str, Any], report_type: str) -> None:
     if report_type not in {"user_cost", "cost"}:
         return
     if "total_cost_usd" not in record and record.get("amount") is not None:
         _apply_cents_to_usd(record, "amount", "total_cost_usd")
 
 
-def _normalize_spend_limit_amounts(record: Dict[str, Any]) -> None:
+def _normalize_spend_limit_amounts(record: dict[str, Any]) -> None:
     _apply_cents_to_usd(record, "amount", "spend_limit_usd")
     _apply_cents_to_usd(record, "period_to_date_spend", "period_spend_usd")
     limit_usd = record.get("spend_limit_usd")
@@ -181,7 +181,7 @@ def _normalize_spend_limit_amounts(record: Dict[str, Any]) -> None:
 
 
 def _apply_cents_to_usd(
-    record: Dict[str, Any], cents_field: str, usd_field: str
+    record: dict[str, Any], cents_field: str, usd_field: str
 ) -> None:
     raw = record.get(cents_field)
     usd = _money_to_usd(raw)
@@ -189,7 +189,7 @@ def _apply_cents_to_usd(
         record[usd_field] = usd
 
 
-def _money_to_usd(raw: Any) -> Optional[float]:
+def _money_to_usd(raw: Any) -> float | None:
     """Convert API money amounts to USD.
 
     Anthropic Analytics/Admin API amounts are cents expressed as decimal
