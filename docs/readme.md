@@ -103,7 +103,6 @@ Where to install:
 | Tier | Install? | Why |
 |---|---|---|
 | Search head | Yes | Dashboards, macros, props (search-time), saved searches |
-| Heavy forwarder / IDM / inputs tier | Yes | Data collection (modular inputs) — enable inputs **only** here |
 | Indexers | Optional | Index-time settings are minimal (line breaking, timestamps); needed only if events arrive uncooked |
 | Universal forwarder | No | Not applicable |
 
@@ -111,8 +110,8 @@ On a single instance, one installation does everything.
 
 ### Configuration
 
-1. **(Recommended) Create a dedicated index** to collect your events, e.g. `claude`.
-2. **Add the account** — open the add-on, go to
+1. **(Recommended) Create a dedicated index on the SH** to collect your events, e.g. `claude`.
+2. **Add the account, only admins can perform this task as they will have access to the Compliance API key** — open the add-on, go to
    **Configuration → Account → Add**, name it (e.g. `claude`), and paste
    your API key(s). Keys are stored encrypted and never logged.
 
