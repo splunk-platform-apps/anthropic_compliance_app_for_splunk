@@ -5,7 +5,7 @@ Enterprise organization into Splunk — with dashboards for **security
 auditing**, **governance**, and **usage & spend analytics (tokenomics)**,
 CIM-normalized events, and ready-made detections.
 
-| | |
+| Dashboard | Content Details |
 |---|---|
 | Security Audit | Access failures, admin/org changes (API keys, roles, spend limits, integrations), data exports, file & artifact exposure, user activity by IP with multi-IP anomalies, compliance-API access auditing |
 | Governance | Directory users/groups roster, invitations, project/chat/artifact activity, agent lifecycle |
@@ -16,6 +16,8 @@ directory, content export), **Enterprise Analytics API** (usage, cost,
 per-user reports), and **Admin API** (spend limits, directory fallback)
 using scoped enterprise API keys stored encrypted in Splunk.
 
+:bookmark: Discover more on monitoring and governing enterprise AI platform in our [new blog post](https://lantern.splunk.com/Security_Use_Cases/Compliance/Monitoring_and_governing_enterprise_AI_platforms#) on Splunk Lantern.
+
 ## Getting Started
 
 To install and run this app, download the latest compiled application directly from the releases page.
@@ -23,13 +25,6 @@ To install and run this app, download the latest compiled application directly f
 :package: [Download the latest release here](https://github.com/splunk-platform-apps/anthropic_compliance_app_for_splunk/releases)
 
 Once downloaded, installation instructions can be found in the provided [documentation](https://splunk-platform-apps.github.io/anthropic_compliance_app_for_splunk/)
-
-Quick start:
-
-1. Create an enterprise API key in the [Anthropic Console](https://console.anthropic.com/) with the read scopes you need (`read:compliance_activities`, `read:analytics`, `read:spend_limits`, `read:members`, ...).
-2. Install the add-on, add the key under **Configuration → Account**.
-3. Create the **Compliance Activity Feed**, **Compliance Directory Sync**, and **Analytics Reports** inputs, pointing at your Claude index.
-4. Scope the `claude_index` search macro to that index. Done — dashboards populate as data arrives (analytics has a ~3-day finalization lag).
 
 ## Useful Links
 
