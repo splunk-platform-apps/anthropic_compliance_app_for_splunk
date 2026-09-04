@@ -103,21 +103,27 @@ Where to install:
 | Tier | Install? | Why |
 |---|---|---|
 | Search head | Yes | Dashboards, macros, props (search-time), saved searches |
-| Indexers | Optional | Index-time settings are minimal (line breaking, timestamps); needed only if events arrive uncooked |
+| Heavy forwarder / IDM | Yes |	Data collection (modular inputs) — enable inputs only here |
+| Indexers | No | This TA only supports modular input-based data collection which uses a heavy forwarder. |
 | Universal forwarder | No | Not applicable |
 
 On a single instance, one installation does everything.
 
 ### Configuration
 
-1. **(Recommended) Create a dedicated index on the SH** to collect your events, e.g. `claude`.
-2. **Add the account, only admins can perform this task as they will have access to the Compliance API key** — open the add-on, go to
+Splunk Admins are requested to:
+
+1. **(Recommended) Create a dedicated index on the Search head** to collect your events, e.g. `claude`.
+
+    1. **Scope the search macro in the Search Head** — if you used a dedicated index, change the `claude_index` macro from the default `index=*` to e.g. `index=claude` via **Settings → Advanced search → Search macros**. Every dashboard and saved search reads through this macro.
+
+2. **Add an account on the Heavy Forwarder** — open the add-on, go to
    **Configuration → Account → Add**, name it (e.g. `claude`), and paste
-   your API key(s). Keys are stored encrypted and never logged.
+   your Compliance API key(s). Keys are stored encrypted and never logged.
 
    An optional HTTPS proxy URL can be set per account.
 
-3. **Create inputs** under **Inputs → Create New Input**:
+3. **Create inputs on the Heavy Forwarder** under **Inputs → Create New Input**:
 
    | Input | What it collects | Suggested interval |
    |---|---|---|
@@ -127,11 +133,6 @@ On a single instance, one installation does everything.
    | Compliance Content Export | On-demand chat/file content for eDiscovery-style workflows (see [Privacy](#privacy--data-handling) below) | on demand |
 
    Set the **Index** on each input to your dedicated index.
-
-4. **Scope the search macro** — if you used a dedicated index, change the
-   `claude_index` macro from the default `index=*` to e.g. `index=claude`
-   via **Settings → Advanced search → Search macros**. Every dashboard and
-   saved search reads through this macro.
 
 ### Usage
 
