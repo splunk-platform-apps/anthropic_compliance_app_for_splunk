@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import date, timedelta
-from typing import Any, Dict, Iterator, List, Optional
+from collections.abc import Iterator
+from datetime import date, datetime, timedelta, timezone
+from typing import Any
 
 from ta_anthropic_claude_enterprise.api.client import AnthropicAPIError, AnthropicClient
 
@@ -18,13 +19,15 @@ class AnalyticsAPI:
 
     @classmethod
     def latest_finalized_date(cls) -> date:
-        return date.today() - timedelta(days=cls.FINALIZATION_LAG_DAYS)
+        return datetime.now(timezone.utc).date() - timedelta(
+            days=cls.FINALIZATION_LAG_DAYS
+        )
 
     def get_summaries(
         self,
         starting_date: date,
         ending_date: date,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         return self._client.analytics_get(
             "/v1/organizations/analytics/summaries",
             {
@@ -36,9 +39,9 @@ class AnalyticsAPI:
     def _paginate_grouped(
         self,
         path: str,
-        params: Dict[str, Any],
-        group_by: Optional[List[str]],
-    ) -> Iterator[Dict[str, Any]]:
+        params: dict[str, Any],
+        group_by: list[str] | None,
+    ) -> Iterator[dict[str, Any]]:
         """Paginate a report, requesting group_by via the API's array-param
         convention (group_by[]); if the API rejects the grouping with a 400,
         retry ungrouped rather than failing the whole collection."""
@@ -56,11 +59,11 @@ class AnalyticsAPI:
     def get_usage_report(
         self,
         starting_at: str,
-        ending_at: Optional[str] = None,
+        ending_at: str | None = None,
         bucket_width: str = "1d",
-        group_by: Optional[List[str]] = None,
-    ) -> Iterator[Dict[str, Any]]:
-        params: Dict[str, Any] = {
+        group_by: list[str] | None = None,
+    ) -> Iterator[dict[str, Any]]:
+        params: dict[str, Any] = {
             "starting_at": starting_at,
             "bucket_width": bucket_width,
         }
@@ -73,11 +76,11 @@ class AnalyticsAPI:
     def get_cost_report(
         self,
         starting_at: str,
-        ending_at: Optional[str] = None,
+        ending_at: str | None = None,
         bucket_width: str = "1d",
-        group_by: Optional[List[str]] = None,
-    ) -> Iterator[Dict[str, Any]]:
-        params: Dict[str, Any] = {
+        group_by: list[str] | None = None,
+    ) -> Iterator[dict[str, Any]]:
+        params: dict[str, Any] = {
             "starting_at": starting_at,
             "bucket_width": bucket_width,
         }
@@ -90,10 +93,10 @@ class AnalyticsAPI:
     def get_user_usage_report(
         self,
         starting_at: str,
-        ending_at: Optional[str] = None,
+        ending_at: str | None = None,
         limit: int = 100,
-    ) -> Dict[str, Any]:
-        params: Dict[str, Any] = {
+    ) -> dict[str, Any]:
+        params: dict[str, Any] = {
             "starting_at": starting_at,
             "limit": limit,
         }
@@ -106,10 +109,10 @@ class AnalyticsAPI:
     def get_user_cost_report(
         self,
         starting_at: str,
-        ending_at: Optional[str] = None,
+        ending_at: str | None = None,
         limit: int = 100,
-    ) -> Dict[str, Any]:
-        params: Dict[str, Any] = {
+    ) -> dict[str, Any]:
+        params: dict[str, Any] = {
             "starting_at": starting_at,
             "limit": limit,
         }
@@ -123,7 +126,7 @@ class AnalyticsAPI:
         self,
         starting_date: date,
         ending_date: date,
-    ) -> Iterator[Dict[str, Any]]:
+    ) -> Iterator[dict[str, Any]]:
         params = {
             "starting_date": starting_date.isoformat(),
             "ending_date": ending_date.isoformat(),

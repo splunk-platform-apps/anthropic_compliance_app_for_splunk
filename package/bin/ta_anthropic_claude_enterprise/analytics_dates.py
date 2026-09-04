@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
-from typing import Any, Dict
+from typing import Any
 
 
 def resolve_analytics_start_date(
-    state: Dict[str, Any],
+    state: dict[str, Any],
     end_date: date,
     backfill_days: int,
 ) -> date:

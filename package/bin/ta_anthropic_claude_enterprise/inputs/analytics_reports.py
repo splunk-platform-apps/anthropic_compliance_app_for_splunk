@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 from datetime import date, datetime, timezone
-from typing import Any, Dict, List
+from typing import Any
 
 from solnlib import log
 from splunklib import modularinput as smi
-
-from ta_anthropic_claude_enterprise.analytics_dates import resolve_analytics_start_date
 from ta_anthropic_claude_enterprise.account import build_client_from_account
+from ta_anthropic_claude_enterprise.analytics_dates import resolve_analytics_start_date
 from ta_anthropic_claude_enterprise.api.analytics import AnalyticsAPI
 from ta_anthropic_claude_enterprise.api.spend_limits import SpendLimitsAPI
 from ta_anthropic_claude_enterprise.checkpoint import CheckpointStore
@@ -67,7 +66,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter) ->
                         account=input_item.get("account"),
                     )
             log.modular_input_end(logger, normalized_input_name)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             log.log_exception(
                 logger,
                 exc,
@@ -80,9 +79,9 @@ def _collect_analytics(
     logger,
     session_key: str,
     input_key: str,
-    input_item: Dict[str, Any],
+    input_item: dict[str, Any],
     event_writer: smi.EventWriter,
-) -> Dict[str, int]:
+) -> dict[str, int]:
     account_name = input_item.get("account")
     client = build_client_from_account(
         session_key, account_name, require_analytics=True
@@ -105,7 +104,7 @@ def _collect_analytics(
         end_date, datetime.min.time(), tzinfo=timezone.utc
     ).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    counts: Dict[str, int] = {
+    counts: dict[str, int] = {
         SOURCETYPE_ANALYTICS_SUMMARY: 0,
         SOURCETYPE_ANALYTICS_USAGE: 0,
         SOURCETYPE_ANALYTICS_COST: 0,
@@ -241,7 +240,7 @@ def _emit_summaries(
     return count
 
 
-def _iter_flattened(records) -> "Any":
+def _iter_flattened(records) -> Any:
     """Flatten report buckets that wrap rows in a results[] array.
 
     The usage/cost report API returns one bucket per time window with the
@@ -286,7 +285,7 @@ def _emit_paginated_report(
 
 
 def _emit_list_report(
-    records: List[Dict[str, Any]],
+    records: list[dict[str, Any]],
     report_type: str,
     sourcetype: str,
     event_writer: smi.EventWriter,

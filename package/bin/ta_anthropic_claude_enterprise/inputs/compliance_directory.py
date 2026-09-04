@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, Iterator, Tuple
+from collections.abc import Iterator
+from typing import Any
 
 from solnlib import log
 from splunklib import modularinput as smi
-
 from ta_anthropic_claude_enterprise.account import build_client_from_account
 from ta_anthropic_claude_enterprise.api.client import AnthropicAPIError
 from ta_anthropic_claude_enterprise.api.compliance import ComplianceAPI
@@ -57,7 +57,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter) ->
                 )
             logger.info("Directory sync complete: %s total records", total)
             log.modular_input_end(logger, normalized_input_name)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             log.log_exception(
                 logger,
                 exc,
@@ -70,9 +70,9 @@ def _collect_directory(
     logger,
     session_key: str,
     input_key: str,
-    input_item: Dict[str, Any],
+    input_item: dict[str, Any],
     event_writer: smi.EventWriter,
-) -> Dict[str, int]:
+) -> dict[str, int]:
     account_name = input_item.get("account")
     client = build_client_from_account(session_key, account_name)
     compliance = ComplianceAPI(client)
@@ -84,7 +84,7 @@ def _collect_directory(
         SOURCETYPE_COMPLIANCE_GROUP: 0,
     }
 
-    sync_handlers: Tuple[Tuple[str, str, Any], ...] = (
+    sync_handlers: tuple[tuple[str, str, Any], ...] = (
         ("users", SOURCETYPE_COMPLIANCE_USER, lambda: _iter_users(compliance, client)),
         (
             "organizations",
@@ -127,7 +127,7 @@ def _is_fallback_status(exc: AnthropicAPIError) -> bool:
     return exc.status_code in (401, 403, 404)
 
 
-def _iter_users(compliance: ComplianceAPI, client) -> Iterator[Dict[str, Any]]:
+def _iter_users(compliance: ComplianceAPI, client) -> Iterator[dict[str, Any]]:
     """Users from the Compliance directory, falling back to the Admin API."""
     try:
         yield from compliance.list_users()
@@ -141,7 +141,7 @@ def _iter_users(compliance: ComplianceAPI, client) -> Iterator[Dict[str, Any]]:
         yield record
 
 
-def _iter_organizations(compliance: ComplianceAPI, client) -> Iterator[Dict[str, Any]]:
+def _iter_organizations(compliance: ComplianceAPI, client) -> Iterator[dict[str, Any]]:
     """Organizations from the Compliance directory, falling back to Admin API."""
     try:
         yield from compliance.list_organizations()
@@ -154,7 +154,7 @@ def _iter_organizations(compliance: ComplianceAPI, client) -> Iterator[Dict[str,
         yield record
 
 
-def _iter_groups(compliance: ComplianceAPI, client) -> Iterator[Dict[str, Any]]:
+def _iter_groups(compliance: ComplianceAPI, client) -> Iterator[dict[str, Any]]:
     """Groups from the Compliance directory, falling back to Admin API workspaces."""
     try:
         yield from compliance.list_groups()

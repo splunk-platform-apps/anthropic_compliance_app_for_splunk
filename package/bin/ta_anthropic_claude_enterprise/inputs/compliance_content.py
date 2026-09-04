@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 from solnlib import log
 from splunklib import modularinput as smi
-
 from ta_anthropic_claude_enterprise.account import (
     build_client_from_account,
     get_account_config,
@@ -55,7 +54,7 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter) ->
                     account=input_item.get("account"),
                 )
             log.modular_input_end(logger, normalized_input_name)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001
             log.log_exception(
                 logger,
                 exc,
@@ -67,9 +66,9 @@ def stream_events(inputs: smi.InputDefinition, event_writer: smi.EventWriter) ->
 def _collect_content(
     logger,
     session_key: str,
-    input_item: Dict[str, Any],
+    input_item: dict[str, Any],
     event_writer: smi.EventWriter,
-) -> Dict[str, int]:
+) -> dict[str, int]:
     account_name = input_item.get("account")
     account = get_account_config(session_key, account_name)
     if account.get("compliance_key_type") == "admin_activities_only":
@@ -108,7 +107,7 @@ def _collect_content(
         counts[SOURCETYPE_COMPLIANCE_FILE_METADATA] = 1
         return counts
 
-    chat_ids: List[str] = []
+    chat_ids: list[str] = []
     if mode == "chat_id":
         chat_id = (input_item.get("target_chat_id") or "").strip()
         if not chat_id:
@@ -149,7 +148,7 @@ def _resolve_chat_ids_for_user(
     user_email: str,
     max_chats: int,
     logger,
-) -> List[str]:
+) -> list[str]:
     user_id = None
     for user in compliance.list_users():
         email = user.get("email_address") or user.get("email")
