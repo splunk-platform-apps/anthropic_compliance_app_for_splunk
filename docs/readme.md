@@ -5,7 +5,7 @@ spend-limit data from an Anthropic Claude Enterprise organization into
 Splunk, and ships dashboards for **security auditing**, **governance**, and
 **usage & spend analytics (tokenomics)**.
 
-It is a UCC-based (Splunk Add-on UCC Framework 6.5) modular-input add-on
+It is a UCC-based modular-input add-on
 written in Python 3, using Splunk KV Store for checkpointing (search-head
 cluster safe) and Splunk's encrypted credential store for API keys.
 
