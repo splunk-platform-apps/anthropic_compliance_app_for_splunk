@@ -136,29 +136,31 @@ Splunk Admins are requested to:
 
 ### Usage
 
-- **Claude Enterprise – Security Audit** — start here for SOC work. The
+On the Search head, select the **Claude Enterprise** dropdown to visualize data on the following dashboards:
+
+- **Security Audit** — start here for SOC work. The
   top row counts access failures, admin/org changes, data exports, file
   uploads, and compliance-API reads for the selected window; tables below
   break down user activity by IP (with a multi-IP anomaly view), admin and
   change events, access-failure detail, file activity, and artifact
   publishing/sharing exposure.
-- **Claude Enterprise – Governance** — user/group roster (directory sync
+- **Governance** — user/group roster (directory sync
   with activity-feed fallback), invitations, project/chat/artifact
   activity, and agent lifecycle.
-- **Claude Enterprise – Usage & Spend Analytics** — adoption, tokenomics,
+- **Usage & Spend Analytics** — adoption, tokenomics,
   and billing. Note: Anthropic finalizes analytics with a **~3-day lag**,
   so the newest data point is about three days old — use *Last 7/30 days*
   ranges on this dashboard. A built-in banner explains setup and lag
   whenever the selected range has no analytics data.
-- **Monitoring Dashboard** — UCC-generated add-on health: errors, resource
-  usage, and event volume per input.
+
+The **Monitoring Dashboard** displays data about the add-on health: errors, resource usage, and event volume per input.
 
 All dashboards default to **Last 24 hours** and include a **user filter**.
 
-Money semantics: Anthropic API amounts are cents expressed as decimal
-strings; the add-on converts them to USD (÷100) at collection time and the
-dashboards recompute from the raw cents fields at search time, so values
-match the Anthropic console.
+> [!IMPORTANT]
+> **Money semantics**
+>
+> Anthropic API amounts are cents expressed as decimal strings; the add-on converts them to USD (÷100) at collection time and the dashboards recompute from the raw cents fields at search time, so values match the Anthropic console.
 
 ## Troubleshooting
 

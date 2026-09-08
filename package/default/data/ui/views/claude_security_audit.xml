@@ -1,5 +1,5 @@
 <form version="1.1">
-  <label>Claude Enterprise - Security Audit</label>
+  <label>Security Audit</label>
   <description>Access failures, administrative changes, data exposure, and anomalous activity from the Compliance API activity feed. Requires the Compliance Activity Feed input.</description>
   <fieldset submitButton="false">
     <input type="time" token="time">

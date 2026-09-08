@@ -1,5 +1,5 @@
 <form version="1.1">
-  <label>Claude Enterprise - Usage &amp; Spend Analytics</label>
+  <label>Usage &amp; Spend Analytics</label>
   <description>Adoption, tokenomics, billing, and spend-limit governance. Requires the Analytics Reports input. Scope the claude_index macro to your Claude index if needed.</description>
   <fieldset submitButton="false">
     <input type="time" token="time">
