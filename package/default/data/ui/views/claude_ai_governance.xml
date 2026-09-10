@@ -1,5 +1,5 @@
 <form version="1.1">
-  <label>Claude Enterprise - Governance</label>
+  <label>Governance</label>
   <description>Directory membership, invitations, project and conversation activity, and agent lifecycle. Requires the Compliance Activity Feed input; directory panels also require the Compliance Directory Sync input.</description>
   <fieldset submitButton="false">
     <input type="time" token="time">

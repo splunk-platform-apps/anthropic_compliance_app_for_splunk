@@ -57,7 +57,7 @@
     ],
     "targetWorkloads": [
         "_search_heads",
-        "_indexers"
+        "_forwarders"
     ],
     "tasks": null
 }
