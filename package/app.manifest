@@ -23,11 +23,11 @@
             ],
             "version": "6.0.0"
         },
-        "description": "Ingest Anthropic Claude Enterprise compliance audit, usage, cost, and spend-limit data into Splunk with security, governance, and analytics dashboards.",
+        "description": "Visualize Anthropic Claude Enterprise compliance audit, usage, cost, and spend-limit data with security, governance, and analytics dashboards in Splunk.",
         "id": {
             "group": null,
-            "name": "TA-anthropic_claude_enterprise",
-            "version": "1.2.4"
+            "name": "anthropic_compliance_app_for_splunk",
+            "version": "1.3.0"
         },
         "license": {
             "name": "Apache-2.0",
@@ -45,7 +45,7 @@
             "text": null,
             "uri": "https://github.com/splunk-platform-apps/anthropic_compliance_app_for_splunk/blob/main/CHANGELOG.md"
         },
-        "title": "Anthropic Claude Enterprise Add-on"
+        "title": "Anthropic Claude Enterprise App for Splunk"
     },
     "inputGroups": null,
     "platformRequirements": null,
