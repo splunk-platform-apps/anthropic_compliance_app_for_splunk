@@ -78,3 +78,7 @@ build/
 # Pre-commit
 .ruff-cache
 .python-version
+
+# Packages
+*.tar.gz
+*.tgz

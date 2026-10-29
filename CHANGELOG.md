@@ -1,3 +1,16 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [v1.3.0] - 2026-10-29
+
+### Removed
+- The data ingestion mechanism was removed from the app, leaving only dashboards.
+
+#### Changed
+- The app root name was changed from `TA-anthropic_claude_enterprise` to `anthropic_compliance_app_for_splunk`.
+
 ## [1.2.4] - 2026-07-24
 
 ### Fixed
