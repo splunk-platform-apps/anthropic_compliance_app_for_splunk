@@ -5,6 +5,7 @@ The Anthropic Claude Enterprise App for Splunk provides dashboards for **securit
 ## Features
 
 **Set of Dashboards** to easily visualize and gain insights into your Anthropic Claude Enterprise data:
+
 - **Security Audit** — Access failures (e.g., `claude_chat_access_failed`), admin/org changes (API keys, roles, spend limits, integrations), data exports, file activity, artifact publishing/sharing exposure, user activity by IP with multi-IP anomaly detection, and auditing of who reads your compliance data via the API.
 - **Governance** — Directory users/groups roster, invitations, project/conversation/artifact activity, agent lifecycle. Panels that depend on optional inputs hide themselves until data exists.
 - **Usage & Spend Analytics** — DAU/WAU/stickiness, adoption rate, token mix (output / uncached input / cache read / cache creation), prompt-cache hit rate, blended cost per 1M tokens, spend by product and model, top users by cost/tokens, spend-vs-limit utilization, pending limit requests, Claude Code tool acceptance, and connector usage.
