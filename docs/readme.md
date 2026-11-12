@@ -59,16 +59,12 @@ All dashboards default to **Last 24 hours** and include a **user filter**.
 
 ## Troubleshooting
 
-- **Analytics panels empty** — in order: (1) widen the time range —
-  analytics data is finalized with a ~3-day lag, so *Last 24 hours* is
-  often legitimately empty; (2) confirm an **Analytics Reports** input
-  exists and is enabled (`| rest /services/data/inputs/analytics_reports`);
-  (3) confirm the key has `read:analytics`; (4) confirm the
-  `claude_index` macro matches the index the input writes to.
+- **Analytics panels empty** — in order:
+  - widen the time range — analytics data is finalized with a ~3-day lag, so *Last 24 hours* is often legitimately empty;
+  - confirm an **Analytics Reports** input exists and is enabled (`| rest /services/data/inputs/analytics_reports`);
+  - confirm the key has `read:analytics`; (4) confirm the `claude_index` macro matches the index the input writes to.
 
-- **Directory panels hidden** — the Governance roster panels appear only
-  after the Compliance Directory Sync input has ingested data. A built-in
-  hint panel explains this in place.
+- **Directory panels hidden** — the Governance roster panels appear only after the Compliance Directory Sync input has ingested data. A built-in hint panel explains this in place.
 
 ## Versions Supported
 
