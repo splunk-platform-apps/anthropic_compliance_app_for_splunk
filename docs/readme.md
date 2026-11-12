@@ -21,9 +21,7 @@ The Anthropic Claude Enterprise App for Splunk provides dashboards for **securit
 ### Installation
 
 Download the [latest release](https://github.com/splunk-platform-apps/anthropic_compliance_app_for_splunk/releases) package and install it via
-**Apps → Manage Apps → Install app from file** (Splunk Enterprise), the
-self-service app install flow (Splunk Cloud), or
-[ACS](https://docs.splunk.com/Documentation/SplunkCloud/latest/Config/ManageApps).
+**Apps → Manage Apps → Install app from file** (Splunk Enterprise), the self-service app install flow (Splunk Cloud), or [ACS](https://docs.splunk.com/Documentation/SplunkCloud/latest/Config/ManageApps).
 
 Where to install:
 
