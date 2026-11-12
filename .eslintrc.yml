@@ -1,0 +1,38 @@
+---
+env:
+  browser: true
+  es6: true
+  jest: true
+  amd: true
+
+globals:
+  Atomics: readonly
+  SharedArrayBuffer: readonly
+  splunkjs: readonly
+
+parser: '@typescript-eslint/parser'
+parserOptions:
+  ecmaVersion: 2018
+  sourceType: module
+
+plugins:
+  - '@typescript-eslint'
+
+extends:
+  - eslint:recommended
+
+rules:
+  eqeqeq: error                  # require === / !== over == / !=
+  no-var: error                  # use let/const, not var
+  prefer-const: error            # const when never reassigned
+  no-implicit-globals: error     # avoid accidental globals
+  no-eval: error                 # disallow eval()
+  no-implied-eval: error         # setTimeout("code") etc.
+  no-return-await: warn          # redundant return await
+  no-throw-literal: error        # throw Error objects, not strings
+  radix: error                   # parseInt with explicit radix
+  semi: [error, always]          # require a ; at the end of every statement
+  quotes: [error, single]        # require single quotes for string literals
+  indent: [error, 2]             # enforce 2-space indentation
+  comma-dangle: [error, always-multiline]   # rquire trailing commas on multiline arrays/objects/params
+  no-extra-semi: error           # disallow unnecessary/duplicate ;

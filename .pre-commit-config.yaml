@@ -5,17 +5,17 @@ repos:
     rev: v6.0.0
     hooks:
     -   id: trailing-whitespace
-        files: ^package/bin/
-        exclude: ^package/bin/[^/]+/aob_py3/
+        files: ^package/.*\.(py|js|xml|json|sh|bash)$
+        exclude: ^package/appserver/static/visualizations/[^/]+/[^/]+\.js$
     -   id: check-yaml
     -   id: check-added-large-files
+        exclude: ^package/appserver/static/visualizations/[^/]+/[^/]+\.js$
     -   id: check-json
         types: [text]
         files: \.(json|manifest)$
     -   id: check-xml
     -   id: debug-statements
-        files: ^package/bin/
-        exclude: ^package/bin/[^/]+/aob_py3/
+        files: ^package/(bin/|appserver/static/).*\.js$
     -   id: check-merge-conflict
 
     # Python linting and formatting
@@ -26,6 +26,25 @@ repos:
     -   id: ruff-check
     # Run the formatter.
     -   id: ruff-format
+
+    # Javascript/Typescript linting
+-   repo: https://github.com/eslint/eslint
+    rev: v8.57.1
+    hooks:
+    -   id: eslint
+        files: ^package/appserver/static/.*\.[jt]sx?$
+        exclude: |
+          (?x)^(
+            package/appserver/static/visualizations/[^/]+/webpack.config.js$|
+            package/appserver/static/visualizations/[^/]+/[^/]+\.js$|
+            ^package/appserver/static/.*\.min\.(js|css)$|
+            package/appserver/static/build/$
+          )
+        types: [file]
+        args: ['--fix']
+        additional_dependencies:
+        -   "@typescript-eslint/parser"
+        -   "@typescript-eslint/eslint-plugin"
 
     # Shell linting and formatting
 -   repo: https://github.com/koalaman/shellcheck-precommit
@@ -45,4 +64,9 @@ repos:
     hooks:
     -   id: detect-secrets
         args: ['--no-verify']
-        exclude: "README.md"
+        exclude: |
+          (?x)^(
+            package/appserver/static/visualizations/[^/]+/[^/]+\.js$|
+            ^package/appserver/static/.*\.min\.(js|css)$|
+            README.md$
+          )
