@@ -32,7 +32,6 @@ repos:
     rev: v10.13.0
     hooks:
     -   id: eslint
-        language_version: system
         files: ^package/appserver/static/.*\.[jt]sx?$
         exclude: |
           (?x)^(
