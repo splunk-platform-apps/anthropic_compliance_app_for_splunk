@@ -29,9 +29,10 @@ repos:
 
     # Javascript/Typescript linting
 -   repo: https://github.com/eslint/eslint
-    rev: v8.57.1
+    rev: v10.13.0
     hooks:
     -   id: eslint
+        language_version: system
         files: ^package/appserver/static/.*\.[jt]sx?$
         exclude: |
           (?x)^(
@@ -43,6 +44,9 @@ repos:
         types: [file]
         args: ['--fix']
         additional_dependencies:
+        -   "@eslint/js"
+        -   "@eslint/eslintrc"
+        -   "globals"
         -   "@typescript-eslint/parser"
         -   "@typescript-eslint/eslint-plugin"
 
